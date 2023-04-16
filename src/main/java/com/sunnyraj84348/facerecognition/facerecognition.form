@@ -12,7 +12,9 @@
         <constraints>
           <grid row="1" column="0" row-span="2" col-span="6" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
-        <properties/>
+        <properties>
+          <mirrored value="true"/>
+        </properties>
       </component>
       <component id="1a99a" class="javax.swing.JButton" binding="enrollButton" default-binding="true">
         <constraints>
@@ -21,6 +23,7 @@
           </grid>
         </constraints>
         <properties>
+          <enabled value="false"/>
           <font name="Open Sans" size="17"/>
           <text value="Enroll"/>
         </properties>
@@ -32,6 +35,7 @@
           </grid>
         </constraints>
         <properties>
+          <enabled value="false"/>
           <font name="Open Sans" size="17"/>
           <text value="Scan"/>
         </properties>
