@@ -144,6 +144,7 @@ public class FaceRecognition extends JFrame {
         this.setContentPane(panel);
         this.setSize(900, 750);
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
+        this.setResizable(false);
         this.setVisible(true);
     }
 
