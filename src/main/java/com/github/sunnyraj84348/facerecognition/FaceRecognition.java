@@ -1,4 +1,4 @@
-package com.sunnyraj84348.facerecognition;
+package com.github.sunnyraj84348.facerecognition;
 
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.github.sarxos.webcam.Webcam;
