@@ -31,11 +31,37 @@ public class FaceRecognition extends JFrame {
     FaceRecognition() {
         initUI();
         initEvent();
+
+        createRes();
     }
 
     public static void main(String[] args) {
         FlatDarkLaf.setup();
         new FaceRecognition();
+    }
+
+    private void createRes() {
+        var imgDir = new File("./images");
+        var trainedDir = new File("./trained");
+        var lblFile = new File("label_count");
+
+        if (!imgDir.exists()) {
+            imgDir.mkdir();
+        }
+
+        if (!trainedDir.exists()) {
+            trainedDir.mkdir();
+        }
+
+        if (!lblFile.exists()) {
+            try {
+                var writer = new FileWriter("label_count");
+                writer.write(Integer.toString(labelCount));
+                writer.close();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     private void initEvent() {
@@ -68,12 +94,6 @@ public class FaceRecognition extends JFrame {
 
             try {
                 var file = new File("label_count");
-
-                if (!file.exists()) {
-                    var writer = new FileWriter("label_count");
-                    writer.write(Integer.toString(labelCount));
-                    writer.close();
-                }
 
                 var sc = new Scanner(file);
                 labelCount = sc.nextInt();
