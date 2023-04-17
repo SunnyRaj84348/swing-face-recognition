@@ -97,108 +97,116 @@ public class FaceRecognition extends JFrame {
         });
 
         enrollButton.addActionListener(e -> {
-            // Capture image
-            var img = webcam.getImage();
+            Thread worker = new Thread(() -> {
+                // Capture image
+                var img = webcam.getImage();
 
-            try {
-                var file = new File("label_count");
+                try {
+                    var file = new File("label_count");
 
-                var sc = new Scanner(file);
-                labelCount = sc.nextInt();
-                sc.close();
+                    var sc = new Scanner(file);
+                    labelCount = sc.nextInt();
+                    sc.close();
 
-                // Save the captured image
-                ImageIO.write(img, "JPG", new File("./images/" + (labelCount + 1) + "-image.jpg"));
+                    // Save the captured image
+                    ImageIO.write(img, "JPG", new File("./images/" + (labelCount + 1) + "-image.jpg"));
 
-            } catch (Exception ex) {
-                throw new RuntimeException(ex);
-            }
+                } catch (Exception ex) {
+                    throw new RuntimeException(ex);
+                }
 
-            var face = getCroppedFace((JButton) e.getSource());
-            if (face == null) {
-                return;
-            }
+                var face = getCroppedFace((JButton) e.getSource());
+                if (face == null) {
+                    return;
+                }
 
-            imwrite("./trained/" + (labelCount + 1) + "-image.jpg", face);
-            labelCount++;
+                imwrite("./trained/" + (labelCount + 1) + "-image.jpg", face);
+                labelCount++;
 
-            try {
-                var writer = new FileWriter("label_count");
-                writer.write(Integer.toString(labelCount));
-                writer.close();
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            }
+                try {
+                    var writer = new FileWriter("label_count");
+                    writer.write(Integer.toString(labelCount));
+                    writer.close();
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
 
-            JOptionPane.showMessageDialog(this, "Completed");
+                JOptionPane.showMessageDialog(this, "Completed");
+            });
+
+            worker.start();
         });
 
         scanButton.addActionListener(e -> {
-            // Capture image
-            var bufImg = webcam.getImage();
+            Thread worker = new Thread(() -> {
+                // Capture image
+                var bufImg = webcam.getImage();
 
-            try {
-                // Save the captured image
-                ImageIO.write(bufImg, "JPG", new File("./images/temp.jpg"));
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            }
-
-            var testImage = getCroppedFace((JButton) e.getSource());
-            if (testImage == null) {
-                return;
-            }
-
-            File root = new File("./trained");
-            FilenameFilter imgFilter = new FilenameFilter() {
-                public boolean accept(File dir, String name) {
-                    name = name.toLowerCase();
-                    return name.endsWith(".jpg") || name.endsWith(".pgm") || name.endsWith(".png");
+                try {
+                    // Save the captured image
+                    ImageIO.write(bufImg, "JPG", new File("./images/temp.jpg"));
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
                 }
-            };
 
-            File[] imageFiles = root.listFiles(imgFilter);
+                var testImage = getCroppedFace((JButton) e.getSource());
+                if (testImage == null) {
+                    return;
+                }
 
-            if (imageFiles.length == 0) {
-                JOptionPane.showMessageDialog(this, "No image available for training");
-                return;
-            }
+                File root = new File("./trained");
+                FilenameFilter imgFilter = new FilenameFilter() {
+                    public boolean accept(File dir, String name) {
+                        name = name.toLowerCase();
+                        return name.endsWith(".jpg") || name.endsWith(".pgm") || name.endsWith(".png");
+                    }
+                };
 
-            MatVector images = new MatVector(imageFiles.length);
+                File[] imageFiles = root.listFiles(imgFilter);
 
-            Mat labels = new Mat(imageFiles.length, 1, CV_32SC1);
-            IntBuffer labelsBuf = labels.createBuffer();
+                if (imageFiles.length == 0) {
+                    JOptionPane.showMessageDialog(this, "No image available for training");
+                    return;
+                }
 
-            int counter = 0;
+                MatVector images = new MatVector(imageFiles.length);
 
-            for (File image : imageFiles) {
-                Mat img = imread(image.getAbsolutePath(), IMREAD_GRAYSCALE);
-                int label = Integer.parseInt(image.getName().split("\\-")[0]);
+                Mat labels = new Mat(imageFiles.length, 1, CV_32SC1);
+                IntBuffer labelsBuf = labels.createBuffer();
 
-                images.put(counter, img);
-                labelsBuf.put(counter, label);
+                int counter = 0;
 
-                counter++;
-            }
+                for (File image : imageFiles) {
+                    Mat img = imread(image.getAbsolutePath(), IMREAD_GRAYSCALE);
+                    int label = Integer.parseInt(image.getName().split("\\-")[0]);
 
-            FaceRecognizer faceRecognizer = LBPHFaceRecognizer.create();
-            faceRecognizer.train(images, labels);
+                    images.put(counter, img);
+                    labelsBuf.put(counter, label);
 
-            IntPointer label = new IntPointer(1);
-            DoublePointer confidence = new DoublePointer(1);
+                    counter++;
+                }
 
-            faceRecognizer.predict(testImage, label, confidence);
-            faceRecognizer.close();
+                FaceRecognizer faceRecognizer = LBPHFaceRecognizer.create();
+                faceRecognizer.train(images, labels);
 
-            int predictedLabel = label.get(0);
+                IntPointer label = new IntPointer(1);
+                DoublePointer confidence = new DoublePointer(1);
 
-            if (confidence.get(0) >= 61) {
-                JOptionPane.showMessageDialog(this, "Not matched");
-                System.out.println("Confidence:" + confidence.get(0));
-            } else {
-                JOptionPane.showMessageDialog(this, "Matched with label " + predictedLabel);
-                System.out.println("Confidence: " + confidence.get(0));
-            }
+                faceRecognizer.predict(testImage, label, confidence);
+                faceRecognizer.close();
+
+                int predictedLabel = label.get(0);
+
+                if (confidence.get(0) >= 61) {
+                    JOptionPane.showMessageDialog(this, "Not matched");
+                    System.out.println("Confidence:" + confidence.get(0));
+                } else {
+                    JOptionPane.showMessageDialog(this, "Matched with label " + predictedLabel);
+                    System.out.println("Confidence: " + confidence.get(0));
+                }
+            });
+
+            worker.start();
         });
     }
 
