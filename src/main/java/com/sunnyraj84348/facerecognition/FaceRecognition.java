@@ -97,6 +97,10 @@ public class FaceRecognition extends JFrame {
         });
 
         enrollButton.addActionListener(e -> {
+            connectButton.setEnabled(false);
+            enrollButton.setEnabled(false);
+            scanButton.setEnabled(false);
+
             Thread worker = new Thread(() -> {
                 // Capture image
                 var img = webcam.getImage();
@@ -132,12 +136,20 @@ public class FaceRecognition extends JFrame {
                 }
 
                 JOptionPane.showMessageDialog(this, "Completed");
+
+                connectButton.setEnabled(true);
+                enrollButton.setEnabled(true);
+                scanButton.setEnabled(true);
             });
 
             worker.start();
         });
 
         scanButton.addActionListener(e -> {
+            connectButton.setEnabled(false);
+            enrollButton.setEnabled(false);
+            scanButton.setEnabled(false);
+
             Thread worker = new Thread(() -> {
                 // Capture image
                 var bufImg = webcam.getImage();
@@ -204,6 +216,10 @@ public class FaceRecognition extends JFrame {
                     JOptionPane.showMessageDialog(this, "Matched with label " + predictedLabel);
                     System.out.println("Confidence: " + confidence.get(0));
                 }
+
+                connectButton.setEnabled(true);
+                enrollButton.setEnabled(true);
+                scanButton.setEnabled(true);
             });
 
             worker.start();
