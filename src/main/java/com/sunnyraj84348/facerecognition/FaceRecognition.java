@@ -149,8 +149,12 @@ public class FaceRecognition extends JFrame {
 
     private void createUIComponents() {
         webcam = Webcam.getDefault();
-        webcam.setViewSize(WebcamResolution.VGA.getSize());
+        if (webcam == null) {
+            JOptionPane.showMessageDialog(this, "Failed loading webcam");
+            System.exit(-1);
+        }
 
+        webcam.setViewSize(WebcamResolution.VGA.getSize());
         webcamPanel = new WebcamPanel(webcam, false);
     }
 }
