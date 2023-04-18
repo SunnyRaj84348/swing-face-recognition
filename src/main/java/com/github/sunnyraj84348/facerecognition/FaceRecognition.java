@@ -97,9 +97,7 @@ public class FaceRecognition extends JFrame {
         });
 
         enrollButton.addActionListener(e -> {
-            connectButton.setEnabled(false);
-            enrollButton.setEnabled(false);
-            scanButton.setEnabled(false);
+            setBtnEnabled(false);
 
             Thread worker = new Thread(() -> {
                 // Capture image
@@ -121,6 +119,7 @@ public class FaceRecognition extends JFrame {
 
                 var face = getCroppedFace((JButton) e.getSource());
                 if (face == null) {
+                    setBtnEnabled(true);
                     return;
                 }
 
@@ -137,18 +136,14 @@ public class FaceRecognition extends JFrame {
 
                 JOptionPane.showMessageDialog(this, "Completed");
 
-                connectButton.setEnabled(true);
-                enrollButton.setEnabled(true);
-                scanButton.setEnabled(true);
+                setBtnEnabled(true);
             });
 
             worker.start();
         });
 
         scanButton.addActionListener(e -> {
-            connectButton.setEnabled(false);
-            enrollButton.setEnabled(false);
-            scanButton.setEnabled(false);
+            setBtnEnabled(false);
 
             Thread worker = new Thread(() -> {
                 // Capture image
@@ -163,6 +158,7 @@ public class FaceRecognition extends JFrame {
 
                 var testImage = getCroppedFace((JButton) e.getSource());
                 if (testImage == null) {
+                    setBtnEnabled(true);
                     return;
                 }
 
@@ -217,9 +213,7 @@ public class FaceRecognition extends JFrame {
                     System.out.println("Confidence: " + confidence.get(0));
                 }
 
-                connectButton.setEnabled(true);
-                enrollButton.setEnabled(true);
-                scanButton.setEnabled(true);
+                setBtnEnabled(true);
             });
 
             worker.start();
@@ -258,6 +252,12 @@ public class FaceRecognition extends JFrame {
 
         faceDetector.close();
         return new Mat(image, rect);
+    }
+
+    private void setBtnEnabled(boolean state) {
+        connectButton.setEnabled(state);
+        enrollButton.setEnabled(state);
+        scanButton.setEnabled(state);
     }
 
     private void initUI() {
